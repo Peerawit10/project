@@ -1,69 +1,20 @@
 <?php
-// ใน slidingcart.php
-function getCartItems($pdo)
-{
+// ฟังก์ชันดึงข้อมูลสินค้าในตะกร้า
+function getCartItems($pdo) {
     if (empty($_SESSION['cart'])) {
         return [];
     }
 
     $items = [];
     foreach ($_SESSION['cart'] as $productId => $quantity) {
-        // แก้ไขการค้นหาให้ใช้ ID ที่ถูกต้องสำหรับแต่ละตาราง
-        $queries = [
-            'dried_foods' => ['id_column' => 'd_id', 'table' => 'dried_foods'],
-            'drinks' => ['id_column' => 'di_id', 'table' => 'drinks'],
-            'items' => ['id_column' => 'i_id', 'table' => 'items'],
-            'snack' => ['id_column' => 's_id', 'table' => 'snack'],
-            'condiment' => ['id_column' => 'c_id', 'table' => 'condiment']
-        ];
-
-        foreach ($queries as $info) {
-            $stmt = $pdo->prepare("SELECT *, '{$info['table']}' as source_table FROM {$info['table']} WHERE {$info['id_column']} = ?");
-            $stmt->execute([$productId]);
-            if ($product = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $product['quantity'] = $quantity;
-                $items[] = $product;
-                break;
-            }
+        $stmt = $pdo->prepare("SELECT * FROM stock WHERE id = ?");
+        $stmt->execute([$productId]);
+        if ($product = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $product['quantity'] = $quantity;
+            $items[] = $product;
         }
     }
     return $items;
-}
-
-// ใน cartupdate.php - เพิ่มส่วนนี้หลัง require database
-function calculateTotal($pdo, $cart)
-{
-    $total = 0;
-    foreach ($cart as $productId => $quantity) {
-        $queries = [
-            'dried_foods' => ['id_column' => 'd_id', 'table' => 'dried_foods'],
-            'drinks' => ['id_column' => 'di_id', 'table' => 'drinks'],
-            'items' => ['id_column' => 'i_id', 'table' => 'items'],
-            'snack' => ['id_column' => 's_id', 'table' => 'snack'],
-            'condiment' => ['id_column' => 'c_id', 'table' => 'condiment']
-        ];
-
-        foreach ($queries as $info) {
-            $stmt = $pdo->prepare("SELECT price FROM {$info['table']} WHERE {$info['id_column']} = ?");
-            $stmt->execute([$productId]);
-            if ($product = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $total += $product['price'] * $quantity;
-                break;
-            }
-        }
-    }
-    return $total;
-}
-
-function getItemId($item)
-{
-    $id_keys = ['d_id', 'di_id', 'i_id', 's_id', 'c_id']; // รายชื่อคีย์ที่ใช้เป็น ID
-    foreach ($id_keys as $key) {
-        if (!empty($item[$key])) {
-            return htmlspecialchars($item[$key]); // คืนค่าไอดีที่พบ
-        }
-    }
-    return 'Unknown'; // ถ้าไม่มีค่าไอดีเลย
 }
 ?>
 
@@ -84,7 +35,7 @@ function getItemId($item)
             </div>
         <?php else: ?>
             <?php foreach ($cartItems as $item): ?>
-                <div class="cart-item" data-id="<?php echo getItemId($item); ?>">
+                <div class="cart-item" data-id="<?php echo htmlspecialchars($item['id']); ?>">
                     <div class="item-image">
                         <img src="<?php echo htmlspecialchars($item['image_url']); ?>"
                             alt="<?php echo htmlspecialchars($item['name']); ?>">
