@@ -320,15 +320,15 @@ button.next {
 }
 
 .menu-links:hover .nav-card {
-    background-color: #429ffc;
+    /* background-color: #429ffc; */
     transform: translateY(-15px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); */
 }
 
 .nav-card.active {
-    background-color: red;
+    /* background-color: red; */
     transform: translateY(-15px);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); */
   }
 
 .menu-links span {
