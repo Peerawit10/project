@@ -19,14 +19,27 @@ if (!isset($_SESSION['cart'])) {
 }
 
 try {
-    // ค้นหาสินค้าจากตาราง stock อย่างเดียว
-    $stmt = $pdo->prepare("SELECT id, price FROM stock WHERE id = ?");
+    // เริ่ม transaction
+    $pdo->beginTransaction();
+
+    // ดึงข้อมูลสินค้าและล็อคแถวสำหรับการอัพเดท
+    $stmt = $pdo->prepare("SELECT id, price, stock FROM stock WHERE id = ? FOR UPDATE");
     $stmt->execute([$productId]);
     $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$product) {
         throw new Exception('ไม่พบสินค้า');
     }
+
+    // ตรวจสอบว่ามีสินค้าเพียงพอ
+    if ($product['stock'] <= 0) {
+        throw new Exception('สินค้าหมด');
+    }
+
+    // อัพเดทจำนวนสินค้าในคลัง
+    $newStock = $product['stock'] - 1;
+    $updateStmt = $pdo->prepare("UPDATE stock SET stock = ? WHERE id = ?");
+    $updateStmt->execute([$newStock, $productId]);
 
     // เพิ่มสินค้าลงตะกร้า
     if (isset($_SESSION['cart'][$productId])) {
@@ -37,21 +50,32 @@ try {
 
     // คำนวณยอดรวมใหม่
     $total = 0;
+    $itemCount = 0;
     foreach ($_SESSION['cart'] as $pid => $qty) {
         $stmt = $pdo->prepare("SELECT price FROM stock WHERE id = ?");
         $stmt->execute([$pid]);
         if ($item = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $total += $item['price'] * $qty;
+            $itemCount += $qty;
         }
     }
+
+    // ยืนยัน transaction
+    $pdo->commit();
 
     echo json_encode([
         'success' => true,
         'total' => $total,
+        'itemCount' => $itemCount,
+        'updatedStock' => $newStock,
         'quantity' => $_SESSION['cart'][$productId]
     ]);
 
 } catch (Exception $e) {
+    // ถ้าเกิดข้อผิดพลาด ให้ rollback การทำงานทั้งหมด
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     exit;
 }

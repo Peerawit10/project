@@ -14,47 +14,84 @@ if (!isset($data['productId'])) {
 $productId = $data['productId'];
 
 try {
+    // เริ่ม transaction
     $pdo->beginTransaction();
 
-    // ตรวจสอบว่าสินค้ามีอยู่จริง
-    $stmt = $pdo->prepare("SELECT price FROM stock WHERE id = ?");
+    // ดึงข้อมูลสินค้าและล็อคแถวสำหรับการอัพเดท
+    $stmt = $pdo->prepare("SELECT id, price, stock FROM stock WHERE id = ? FOR UPDATE");
     $stmt->execute([$productId]);
-    
-    if (!$stmt->fetch(PDO::FETCH_ASSOC)) {
+    $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$product) {
         throw new Exception('ไม่พบสินค้า');
     }
 
-    // ตรวจสอบว่าเป็นการลบสินค้าหรือไม่
     if (isset($data['action']) && $data['action'] === 'remove') {
-        unset($_SESSION['cart'][$productId]);
-    } 
-    // ถ้าไม่ใช่การลบ ให้อัพเดทจำนวนสินค้า
-    else if (isset($data['quantity'])) {
-        $_SESSION['cart'][$productId] = $data['quantity'];
+        // คืนสต็อกสินค้า
+        if (isset($_SESSION['cart'][$productId])) {
+            $returnStock = $_SESSION['cart'][$productId]; // จำนวนที่จะคืนกลับ
+            $newStock = $product['stock'] + $returnStock;
+
+            // อัพเดทสต็อกในฐานข้อมูล
+            $updateStmt = $pdo->prepare("UPDATE stock SET stock = ? WHERE id = ?");
+            $updateStmt->execute([$newStock, $productId]);
+
+            // ลบสินค้าออกจากตะกร้า
+            unset($_SESSION['cart'][$productId]);
+        }
+    } else if (isset($data['quantity'])) {
+        // กรณีอัพเดทจำนวน
+        $newQuantity = (int)$data['quantity'];
+        $currentQuantity = isset($_SESSION['cart'][$productId]) ? $_SESSION['cart'][$productId] : 0;
+
+        if ($newQuantity < $currentQuantity) {
+            // กรณีลดจำนวน คืนสต็อก
+            $returnStock = $currentQuantity - $newQuantity;
+            $newStock = $product['stock'] + $returnStock;
+
+            $updateStmt = $pdo->prepare("UPDATE stock SET stock = ? WHERE id = ?");
+            $updateStmt->execute([$newStock, $productId]);
+        } else if ($newQuantity > $currentQuantity) {
+            // กรณีเพิ่มจำนวน ตรวจสอบและลดสต็อก
+            $reduceStock = $newQuantity - $currentQuantity;
+            if ($product['stock'] < $reduceStock) {
+                throw new Exception('สินค้าในสต็อกไม่เพียงพอ');
+            }
+            $newStock = $product['stock'] - $reduceStock;
+
+            $updateStmt = $pdo->prepare("UPDATE stock SET stock = ? WHERE id = ?");
+            $updateStmt->execute([$newStock, $productId]);
+        }
+
+        $_SESSION['cart'][$productId] = $newQuantity;
     }
 
     // คำนวณยอดรวมใหม่
     $total = 0;
-    if (!empty($_SESSION['cart'])) {
-        foreach ($_SESSION['cart'] as $pid => $qty) {
-            $stmt = $pdo->prepare("SELECT price FROM stock WHERE id = ?");
-            $stmt->execute([$pid]);
-            if ($product = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $total += $product['price'] * $qty;
-            }
+    $itemCount = 0;
+    foreach ($_SESSION['cart'] as $pid => $qty) {
+        $stmt = $pdo->prepare("SELECT price FROM stock WHERE id = ?");
+        $stmt->execute([$pid]);
+        if ($item = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $total += $item['price'] * $qty;
+            $itemCount += $qty;
         }
     }
 
+    // ยืนยัน transaction
     $pdo->commit();
 
     echo json_encode([
         'success' => true,
         'total' => $total,
-        'itemCount' => count($_SESSION['cart'])
+        'itemCount' => $itemCount,
+        'message' => 'อัพเดทตะกร้าสำเร็จ'
     ]);
-
 } catch (Exception $e) {
-    $pdo->rollBack();
-    echo json_encode(['success' => false, 'message' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()]);
+    // ถ้าเกิดข้อผิดพลาด ให้ rollback การทำงานทั้งหมด
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     exit;
 }

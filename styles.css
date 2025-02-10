@@ -554,3 +554,76 @@ button.next {
     color: #007bff;
     margin-right: 5px;
 }
+
+/* เพิ่ม CSS สำหรับ notification และ animation */
+.cart-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out;
+}
+
+.cart-notification.error {
+    background-color: #f44336;
+}
+
+.cart-notification .notification-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cart-notification i {
+    font-size: 1.2em;
+}
+
+.cart-notification.fade-out {
+    animation: fadeOut 0.3s ease-out forwards;
+}
+
+.add-to-cart.added {
+    background-color: #4CAF50;
+    color: white;
+    animation: buttonPulse 1s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+@keyframes buttonPulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
