@@ -1,0 +1,556 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    padding-bottom: 100px;
+    background-color: #fff; /* เปลี่ยนสีของพื้นหลัง */
+}
+
+header {
+    background-color: #fff; /* เปลี่ยนสีของส่วนหัว */
+    color: #fff;
+    text-align: center;
+}
+
+.logo {
+    margin-right: 20px;
+    margin-left: 20px;
+}
+
+.logo-image {
+    width: 150px;  /* ปรับขนาดตามต้องการ */
+    height: 150px; /* ปรับขนาดตามต้องการ */
+    object-fit: contain;
+    margin-right: 1550px;
+}
+
+main {
+    padding: 1rem;
+}
+
+h1 {
+    color: #333;
+    
+}
+
+h2 {
+    color: #333;
+    margin-left: 100px;
+}
+
+.product-carousel {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.product-grid {
+    display: flex;
+    overflow-x: hidden; /* เปลี่ยนจาก hidden เป็น auto */
+    scroll-behavior: smooth;
+    gap: 1rem;
+    padding: 1rem 0;
+    margin-left: 100px;
+    margin-right: 100px;
+}
+
+.product-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 400px; /* กำหนดความกว้างคงที่ */
+    height: 300px; /* กำหนดความสูงคงที่ */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    flex-shrink: 0; /* ป้องกันการ์ดจากการย่อขนาด */
+    cursor: pointer; /* เปลี่ยนเคอร์เซอร์เมื่อวางเมาส์ */
+}
+
+.product-card:hover {
+    transform: translateY(-10px);
+}
+
+.product-card img {
+    width: 100%;
+    height: 150px; /* กำหนดความสูงคงที่ */
+    object-fit: cover;
+}
+
+.product-info {
+    padding: 1rem;
+    height: 150px; /* กำหนดความสูงคงที่ */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.product-info h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.product-info p {
+    margin: 0.5rem 0 0;
+    color: #666;
+}
+
+button.prev, button.next {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 99;
+}
+
+button.prev {
+    left: 0;
+}
+
+button.next {
+    right: 0;
+}
+
+.footer-bar {
+    position: fixed; /* ตำแหน่งคงที่ */
+    bottom: 0; /* อยู่ด้านล่างสุดของหน้าจอ */
+    left: 50%; /* จัดกึ่งกลางจากซ้าย */
+    transform: translateX(-50%); /* ดันให้กลับมาจัดกึ่งกลาง */
+    width: 66%; /* ความกว้างของ footer เท่ากับ container */
+    max-width: 80%; /* จำกัดความกว้างสูงสุดให้เท่ากับ container */
+    display: flex;
+    justify-content: space-around;
+    background-color: #333;
+    padding: 1rem 2rem;
+    border-radius: 30px 30px 0 0; /* ทำให้มุมบนเป็นวงรี */
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 999;
+}
+
+.footer-bar button {
+    background-color: #444;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem; /* ปรับความยาวของปุ่ม */
+    cursor: pointer;
+    border-radius: 20px; /* ทำให้ปุ่มเป็นวงรี */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* เพิ่มการเปลี่ยนแปลง */
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* เพิ่มช่องว่างระหว่างไอคอนและข้อความ */
+}
+
+.footer-bar button i {
+    font-size: 1.2rem; /* ขนาดของไอคอน */
+}
+
+.footer-bar button:hover {
+    background-color: #555;
+}
+
+.footer-bar button:active {
+    transform: scale(0.95); /* เพิ่มแอนิเมชันเมื่อกดปุ่ม */
+}
+
+/* สไตล์ป๊อบอัพ */
+.popup {
+    display: none; /* ซ่อนป๊อบอัพ */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.popup-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    text-align: center;
+    border-radius: 8px;
+}
+
+.popup-content img {
+    width: 100%;
+    height: auto;
+    max-height: 500px; /* เพิ่มความสูง */
+    object-fit: cover;
+}
+
+.popup-content h4 {
+    margin-top: 30px;
+    font-size: 2rem;
+    color: #333;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+#search-form {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+#search-input {
+    padding: 0.5rem;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 0.5rem;
+}
+
+#search-form button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#search-form button:hover {
+    background-color: #0056b3;
+}
+
+.popup {
+    display: none; /* ซ่อนป๊อบอัพ */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.popup-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    text-align: center;
+    border-radius: 8px;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.menu-links {
+    padding: 15px;
+    /* border: 2px solid red; */
+    text-align: center;
+    max-height: 150px;
+    margin-top: -120px;
+    margin-bottom: 60px;
+    position: relative;
+}
+
+.menu-links a {
+    text-decoration: none;
+    color: #333;
+    display: block;
+}
+
+.menu-links img {
+    max-width: 500px;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+}
+
+.menu-links .nav-card {
+    /* border: 1px solid green; */
+    margin: 10px auto;
+    padding: 5px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.menu-links:hover .nav-card {
+    background-color: #429ffc;
+    transform: translateY(-15px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.nav-card.active {
+    background-color: red;
+    transform: translateY(-15px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+
+.menu-links span {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #e9ecef;
+    display: block;
+    margin: auto 0px;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.menu-page-content {
+    width: 100%;
+    background-color: #fff;
+    padding: 0px 0;
+}
+
+.content-body {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.inner-content-grid {
+    padding: 0 15px;
+}
+
+/* Deal Item Styles */
+.deal-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #fff;
+    margin-bottom: 20px;
+    max-height: 500px;
+    height: 400px;
+}
+
+.deal-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.user-dashboard {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.user-dashboard .dropdown-menu {
+    position: absolute;
+    min-width: 200px;
+    right: 0;
+    left: auto;
+    box-shadow: 0 2px 10px rgba(0,0,0,.1);
+}
+
+.user-dashboard .dropdown-toggle {
+    padding: 8px 15px;
+}
+
+.user-dashboard .dropdown-item {
+    padding: 8px 20px;
+    clear: both;
+    white-space: nowrap;
+}
+
+.user-dashboard .dropdown-item i {
+    margin-right: 10px;
+    width: 16px;
+}
+
+.user-dashboard .text-danger:hover {
+    background-color: #fff5f5;
+}
+
+.popup-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.popup-buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.popup-buttons button:first-child {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.popup-buttons button:last-child {
+    background-color: #f44336;
+    color: white;
+}
+    /* การ์ดสินค้า */
+.deal-item {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #fff;
+    padding: 15px;
+    height: 300px;
+}
+
+.deal-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* รูปภาพสินค้า */
+.promo-item-image img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: none;
+    transition: transform 0.3s ease-in-out;
+}
+
+.promo-item-image img:hover {
+    transform: scale(1.1);
+}
+
+/* รูปภาพสินค้าแบบแห้ง */
+.dried-image {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    margin-right: auto; /* ปรับระยะห่างอัตโนมัติ */
+    display: block;
+}
+
+/* รายละเอียดสินค้า */
+.promo-item-detail {
+    padding: 15px;
+    text-align: center;
+}
+
+/* คำอธิบายสินค้า */
+.promo-item-desc {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+/* ราคาสินค้า */
+.promo-item-price {
+    font-size: 20px;
+    font-weight: bold;
+    color: #e60000;
+}
+
+/* สถานะสินค้า */
+.stock-status {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.in-stock {
+    background-color: #28a745;
+}
+
+.low-stock {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.out-of-stock {
+    background-color: #dc3545;
+}
+
+/* ปุ่มเพิ่มลงตะกร้า */
+.add-to-cart {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.add-to-cart:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+.product-count {
+    font-size: 14px;
+    color: #555;
+    margin-top: -20px;
+    text-align: center;
+}
+
+.product-count i {
+    color: #007bff;
+    margin-right: 5px;
+}
