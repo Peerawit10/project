@@ -353,6 +353,7 @@ function getCartItems($pdo) {
                     .then(data => {
                         if (data.success) {
                             // ลบ element ออกจาก DOM
+                            location.reload(); // รีเฟรชหน้าหลังจากอัปเดตตะกร้า
                             cartItem.remove();
 
                             // อัพเดทยอดรวม

@@ -194,9 +194,10 @@ try {
                         // เพิ่ม animation ที่ปุ่ม
                         cartButton.classList.add('added');
                         setTimeout(() => {
+                            location.reload(); // รีเฟรชหน้าหลังจากอัปเดตตะกร้า
                             cartButton.classList.remove('added');
                         }, 1000);
-
+                        
                     } else {
                         throw new Error(data.message || 'เกิดข้อผิดพลาดในการเพิ่มสินค้า');
                     }
