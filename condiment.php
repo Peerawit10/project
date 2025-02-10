@@ -1,9 +1,9 @@
 <?php
 require_once 'config/database.php';
 
-// Fetch all dried food products
+// Fetch only condiment products
 try {
-    $stmt = $pdo->prepare("SELECT * FROM condiment ORDER BY name");
+    $stmt = $pdo->prepare("SELECT * FROM stock WHERE category = 'condiment' ORDER BY name");
     $stmt->execute();
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch(PDOException $e) {
@@ -17,14 +17,10 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>อาหารแห้ง - ร้านขายของชำ</title>
+    <title>เครื่องปรุง - ร้านขายของชำ</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        
-
-    </style>
 </head>
 
 <body>
@@ -43,8 +39,6 @@ try {
                                      onerror="this.src='images/default.jpg'" 
                                      alt="<?php echo htmlspecialchars($product['name']); ?>">
                             </div>
-                            
-                            
                             
                             <?php
                             $stockClass = '';
@@ -79,7 +73,7 @@ try {
                                     </div>
                                     <?php if ($product['stock'] > 0): ?>
                                         <button class="add-to-cart btn" 
-                                                data-product-id="<?php echo $product['c_id']; ?>">
+                                                data-product-id="<?php echo $product['id']; ?>">
                                             <i class="fas fa-cart-plus"></i> เพิ่มลงตะกร้า
                                         </button>
                                     <?php else: ?>
@@ -89,13 +83,11 @@ try {
                                     <?php endif; ?>
                                 </div>
                             </div>
-                            
                         </div>
                         <div class="product-count">
-                                <i class="fas fa-box"></i> <?php echo $product['stock']; ?> ชิ้น
-                            </div>
+                            <i class="fas fa-box"></i> <?php echo $product['stock']; ?> ชิ้น
+                        </div>
                     </div>
-                    
                 </div>
             <?php endforeach; ?>
         </div>
@@ -105,42 +97,38 @@ try {
 
     <script>
         document.querySelectorAll('.add-to-cart').forEach(button => {
-    button.addEventListener('click', function() {
-        const productId = this.dataset.productId;
-        
-        fetch('addtocart.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                productId: productId
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // อัพเดท UI ตะกร้า
-                document.querySelector('.total-amount').textContent = 
-                    '฿' + data.total.toFixed(2);
-                    
-                // แสดงข้อความสำเร็จ
-                alert('เพิ่มสินค้าลงตะกร้าแล้ว!');
+            button.addEventListener('click', function() {
+                const productId = this.dataset.productId;
                 
-                // รีเฟรชแผงตะกร้าถ้าเปิดอยู่
-                if (document.getElementById('cart-panel').classList.contains('active')) {
-                    location.reload();
-                }
-            } else {
-                alert('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+                fetch('addtocart.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        productId: productId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.querySelector('.total-amount').textContent = 
+                            '฿' + data.total.toFixed(2);
+                        alert('เพิ่มสินค้าลงตะกร้าแล้ว!');
+                        
+                        if (document.getElementById('cart-panel').classList.contains('active')) {
+                            location.reload();
+                        }
+                    } else {
+                        alert('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+                });
+            });
         });
-    });
-});
     </script>
 </body>
 </html>

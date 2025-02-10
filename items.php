@@ -1,9 +1,9 @@
 <?php
 require_once 'config/database.php';
 
-// Fetch all dried food products
+// Fetch only condiment products
 try {
-    $stmt = $pdo->prepare("SELECT * FROM items ORDER BY name");
+    $stmt = $pdo->prepare("SELECT * FROM stock WHERE category = 'items' ORDER BY name");
     $stmt->execute();
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch(PDOException $e) {
@@ -79,7 +79,7 @@ try {
                                     </div>
                                     <?php if ($product['stock'] > 0): ?>
                                         <button class="add-to-cart btn" 
-                                                data-product-id="<?php echo $product['i_id']; ?>">
+                                                data-product-id="<?php echo $product['id']; ?>">
                                             <i class="fas fa-cart-plus"></i> เพิ่มลงตะกร้า
                                         </button>
                                     <?php else: ?>
